@@ -5,16 +5,17 @@
     android:id="@+id/nav_graph"
     app:startDestination="@id/loginFragment">
 
-
-
     <navigation
-        android:id="@+id/chat_graph"
-        app:startDestination="@id/nav_chat">
-        <fragment android:id="@+id/nav_chat" android:name="com.example.myapplicationview.fragment.ChatFragment" android:label="微信">
-            <action
-                android:id="@+id/action_nav_chat_to_chatFragment2"
-                app:destination="@id/chatFragment2" />
-        </fragment>
+        android:id="@+id/main_graph"
+        app:startDestination="@id/chat_graph">
+        <navigation
+            android:id="@+id/chat_graph"
+            app:startDestination="@id/nav_chat">
+            <fragment android:id="@+id/nav_chat" android:name="com.example.myapplicationview.fragment.ChatFragment" android:label="微信">
+                <action
+                    android:id="@+id/action_nav_chat_to_chatFragment2"
+                    app:destination="@id/chatFragment2" />
+            </fragment>
 
             <fragment
                 android:id="@+id/chatFragment2"
@@ -36,27 +37,23 @@
                     app:nullable="true"
                     android:defaultValue="@null"/>
             </fragment>
+        </navigation>
+        <navigation
+            android:id="@+id/contact_graph"
+            app:startDestination="@id/nav_contact">
+            <fragment android:id="@+id/nav_contact" android:name="com.example.myapplicationview.fragment.ContactFragment" android:label="通讯录" />
+        </navigation>
+        <navigation
+            android:id="@+id/find_graph"
+            app:startDestination="@id/nav_find">
+            <fragment android:id="@+id/nav_find" android:name="com.example.myapplicationview.fragment.FindFragment" android:label="发现" />
+        </navigation>
+        <navigation
+            android:id="@+id/me_graph"
+            app:startDestination="@id/nav_me">
+            <fragment android:id="@+id/nav_me" android:name="com.example.myapplicationview.fragment.MeFragment" android:label="我" />
+        </navigation>
     </navigation>
-
-    <navigation
-        android:id="@+id/contact_graph"
-        app:startDestination="@id/nav_contact">
-        <fragment android:id="@+id/nav_contact" android:name="com.example.myapplicationview.fragment.ContactFragment" android:label="通讯录" />
-    </navigation>
-
-    <navigation
-        android:id="@+id/find_graph"
-        app:startDestination="@id/nav_find">
-        <fragment android:id="@+id/nav_find" android:name="com.example.myapplicationview.fragment.FindFragment" android:label="发现" />
-    </navigation>
-
-    <navigation
-        android:id="@+id/me_graph"
-        app:startDestination="@id/nav_me">
-        <fragment android:id="@+id/nav_me" android:name="com.example.myapplicationview.fragment.MeFragment" android:label="我" />
-    </navigation>
-
-
 
     <fragment
         android:id="@+id/homeFragment"
@@ -74,8 +71,8 @@
         android:name="com.example.myapplicationview.fragment.LoginFragment"
         android:label="LoginFragment" >
         <action
-            android:id="@+id/action_loginFragment_to_chat_graph"
-            app:destination="@id/chat_graph" />
+            android:id="@+id/action_loginFragment_to_main_graph"
+            app:destination="@id/main_graph" />
     </fragment>
 
 </navigation>

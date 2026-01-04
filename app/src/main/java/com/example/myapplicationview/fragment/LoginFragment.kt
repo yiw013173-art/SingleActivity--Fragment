@@ -54,7 +54,7 @@ class LoginFragment : Fragment() {
             var userName = viewBinding.etUsername.text.toString()
             var passWord = viewBinding.etPassword.text.toString()
             if (userName.isNotEmpty() && passWord.isNotEmpty()){
-                val action2 = LoginFragmentDirections.actionLoginFragmentToChatGraph()
+                val action2 = LoginFragmentDirections.actionLoginFragmentToMainGraph()
 
 //                val bundle = Bundle().apply {
 //                    putString("userName",userName)
