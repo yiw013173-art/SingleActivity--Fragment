@@ -1,5 +1,4 @@
 - 语言偏好：必须始终使用中文回复。
 - Git 规范：生成的 Git commit message 必须使用中文，请简练的描述。
-- 架构上下文：本项目采用 MVI (Model-View-Intent) 架构，包含全局事件管理器 GlobalEventManager。
 - 编码规范：Kotlin 代码风格使用官方规范（`kotlin.code.style=official`，见 `gradle.properties`）。
 - 通用规范：遵循 Kotlin/Android 官方命名与可读性最佳实践，类/函数/变量命名语义清晰，避免缩写与魔法数。
