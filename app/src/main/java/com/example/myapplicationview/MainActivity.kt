@@ -3,6 +3,7 @@ package com.example.myapplicationview
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -39,6 +40,10 @@ class MainActivity : AppCompatActivity() {
     private var currentNavController: NavController? = null
     // 在程序性设置 BottomNavigation 选中项时抑制回调
     private var suppressBottomSelection: Boolean = false
+    // 标记当前是否在 Tab 模式
+    private var isInTabMode: Boolean = false
+    // 返回键处理回调
+    private lateinit var backPressedCallback: OnBackPressedCallback
 
     private val rootDestinationListener =
         NavController.OnDestinationChangedListener { _, destination, _ ->
@@ -88,6 +93,9 @@ class MainActivity : AppCompatActivity() {
             currentTag = savedInstanceState.getString(SELECTED_TAG, currentTag) ?: ROOT_TAG
         }
 
+        // 初始化返回键处理
+        initBackPressedCallback()
+
         // 初始创建 root NavHost 显示 loginFragment
         setupRootNavHost()
         setupBottomNav()
@@ -96,6 +104,38 @@ class MainActivity : AppCompatActivity() {
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putString(SELECTED_TAG, currentTag)
         super.onSaveInstanceState(outState)
+    }
+
+    /**
+     * 初始化返回键处理回调
+     * 用于在 Tab 模式下处理返回键，确保返回栈为空时退到桌面而不是杀掉 App
+     */
+    private fun initBackPressedCallback() {
+        backPressedCallback = object : OnBackPressedCallback(false) {
+            override fun handleOnBackPressed() {
+                Log.d("MainActivity", "handleOnBackPressed: isInTabMode=$isInTabMode")
+
+                if (isInTabMode && currentNavController != null) {
+                    val navController = currentNavController!!
+                    val hasBackStack = navController.previousBackStackEntry != null
+
+                    if (hasBackStack) {
+                        // 返回栈不为空，正常返回
+                        Log.d("MainActivity", "handleOnBackPressed: navigating back in NavController")
+                        navController.navigateUp()
+                    } else {
+                        // 返回栈为空，退到桌面
+                        Log.d("MainActivity", "handleOnBackPressed: back stack is empty, moving to back of task stack")
+                        moveTaskToBack(true)
+                    }
+                } else {
+                    // 不在 Tab 模式或 NavController 不可用，退到桌面
+                    Log.d("MainActivity", "handleOnBackPressed: not in tab mode, moving to back of task stack")
+                    moveTaskToBack(true)
+                }
+            }
+        }
+        onBackPressedDispatcher.addCallback(this, backPressedCallback)
     }
 
     private fun setupRootNavHost() {
@@ -239,6 +279,11 @@ class MainActivity : AppCompatActivity() {
         }
 
         setNavListenerForTag(currentTag)
+
+        // 标记进入 Tab 模式并启用返回键处理
+        isInTabMode = true
+        backPressedCallback.isEnabled = true
+        Log.d("MainActivity", "switchToTabs: entered tab mode, back pressed callback enabled")
     }
 
     private fun setupBottomNav() {
