@@ -1,24 +1,34 @@
 package com.example.myapplicationview
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.navigation.NavController
+import androidx.navigation.NavGraph
 import androidx.navigation.fragment.NavHostFragment
 import com.example.myapplicationview.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
     private lateinit var viewBinding: ActivityMainBinding
 
-    // 使用 nav_graph.xml 中定义的子 navigation 的 id 作为每个 tab 的起始目的地 id
+    // 使用 nav_graph.xml 中定义的子 navigation 的 id 作为每个 tab 的起始目的地 id（用于 menu id 映射）
     private val navGraphIds: List<Int> = listOf(
         R.id.chat_graph,
         R.id.contact_graph,
         R.id.find_graph,
         R.id.me_graph
+    )
+
+    // 明确定义每个子 navigation 对应的 startDestination（从 nav_graph.xml 中提取）
+    private val navGraphStartDestinations: Map<Int, Int> = mapOf(
+        R.id.chat_graph to R.id.nav_chat,
+        R.id.contact_graph to R.id.nav_contact,
+        R.id.find_graph to R.id.nav_find,
+        R.id.me_graph to R.id.nav_me
     )
 
     private val fragmentTags by lazy { navGraphIds.indices.map { i -> "bottomNav#${i}" } }
@@ -27,13 +37,28 @@ class MainActivity : AppCompatActivity() {
     private val SELECTED_TAG = "selected_tag"
 
     private var currentNavController: NavController? = null
+    // 在程序性设置 BottomNavigation 选中项时抑制回调
+    private var suppressBottomSelection: Boolean = false
 
     private val rootDestinationListener =
-        NavController.OnDestinationChangedListener { controller, destination, _ ->
-            // 如果 root NavController 导航到了 chat 的开始页面(nav_chat)，切换到 tab hosts
-            if (destination.id == R.id.nav_chat || destination.parent?.id == R.id.chat_graph) {
-                // 切换到 tab 模式并显示 chat tab
-                switchToTabs(selectedIndex = 0)
+        NavController.OnDestinationChangedListener { _, destination, _ ->
+            Log.d("MainActivity", "rootDestinationListener: destination=${destination.id}")
+            // 如果 root NavController 导航到了任意一个子 navigation 的开始页面或其子目的地，切换到 tab hosts
+            // 支持直接跳转到 chat_graph / contact_graph / find_graph / me_graph 中的任意一个
+            val targetGraphId: Int? = when {
+                // 如果 destination 本身就是某个子导航的根 id（例如 nav_chat），则尝试从 parent 中获取 graph id
+                destination.id in navGraphIds -> destination.id
+                // 如果 destination 的 parent 是我们其中的一个子 navigation，则取 parent id
+                destination.parent?.id in navGraphIds -> destination.parent?.id
+                else -> null
+            }
+
+            if (targetGraphId != null) {
+                // 根据 targetGraphId 选择要显示的 tab index
+                val found = navGraphIds.indexOf(targetGraphId)
+                val index = if (found >= 0) found else 0
+                Log.d("MainActivity", "rootDestinationListener: switching to tabs index=$index")
+                switchToTabs(selectedIndex = index)
             } else {
                 // 在根导航（登录或其他页面）时隐藏底部栏
                 viewBinding.bottomNav.visibility = View.GONE
@@ -42,6 +67,7 @@ class MainActivity : AppCompatActivity() {
 
     private val destinationChangedListener =
         NavController.OnDestinationChangedListener { _, destination, _ ->
+            Log.d("MainActivity", "destinationChangedListener: destination=${destination.id}")
             // 在 tab NavController 中，当目的地是 loginFragment 时隐藏 bottomBar（通常不会发生）
             viewBinding.bottomNav.visibility = if (destination.id == R.id.loginFragment) View.GONE else View.VISIBLE
         }
@@ -99,27 +125,50 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupNavHosts() {
         val fm = supportFragmentManager
+
         // 仅创建 hosts，不改变显示状态
         navGraphIds.forEachIndexed { index, navGraphId ->
             val tag = fragmentTags[index]
             var host = fm.findFragmentByTag(tag) as NavHostFragment?
             if (host == null) {
+                // 第一步：使用根图创建 NavHostFragment（不会自动导航到子图的目的地）
                 host = NavHostFragment.create(R.navigation.nav_graph)
+
                 fm.beginTransaction()
                     .add(R.id.nav_host_fragment, host, tag)
                     .hide(host)
                     .commitNow()
 
+                // 第二步：在 Fragment 完全创建后，替换为子图
                 val navController = host.navController
                 val inflater = navController.navInflater
-                val graph = inflater.inflate(R.navigation.nav_graph)
-                graph.setStartDestination(navGraphId)
-                navController.graph = graph
+                val rootGraph = inflater.inflate(R.navigation.nav_graph)
+                val childGraph = rootGraph.findNode(navGraphId) as? NavGraph
+
+                if (childGraph != null) {
+                    try {
+                        // 尝试直接替换为子图
+                        navController.graph = childGraph
+                        Log.d("MainActivity", "setupNavHosts: created host tag=$tag using childNavGraph=$navGraphId")
+                    } catch (e: IllegalArgumentException) {
+                        // 如果设置失败（可能因为导航冲突），记录错误并使用根图作为降级方案
+                        Log.e("MainActivity", "setupNavHosts: failed to set childGraph for $navGraphId, using root graph instead", e)
+                        try {
+                            val rootGraphFallback = inflater.inflate(R.navigation.nav_graph)
+                            navController.graph = rootGraphFallback
+                        } catch (fallbackError: Exception) {
+                            Log.e("MainActivity", "setupNavHosts: even fallback to root graph failed", fallbackError)
+                        }
+                    }
+                } else {
+                    Log.d("MainActivity", "setupNavHosts: created host tag=$tag fallback to root graph")
+                }
             }
         }
     }
 
     private fun switchToTabs(selectedIndex: Int) {
+        Log.d("MainActivity", "switchToTabs: selectedIndex=$selectedIndex")
         // 创建并显示 tab hosts（如果尚未创建），然后移除 root host
         setupNavHosts()
 
@@ -128,20 +177,67 @@ class MainActivity : AppCompatActivity() {
         val root = fm.findFragmentByTag(ROOT_TAG)
         if (root != null) {
             // remove the root fragment to avoid conflicting NavControllers
+            // 先从 root 的 NavController 上移除对 rootDestinationListener 的监听，避免它在移除后继续影响 UI
+            try {
+                val rootHost = root as? NavHostFragment
+                rootHost?.navController?.removeOnDestinationChangedListener(rootDestinationListener)
+            } catch (e: Exception) {
+                // ignore
+            }
+            // 显示选中的 tab
+            val newTag = fragmentTags[selectedIndex]
+            val newFrag = fm.findFragmentByTag(newTag) as NavHostFragment
+            // 先 show 新的 fragment 并设置为 primary，以便它先渲染在容器中
             fm.beginTransaction()
-                .remove(root)
+                .show(newFrag)
+                .setPrimaryNavigationFragment(newFrag)
                 .commitNow()
+
+            // 先更新 currentTag，避免监听器读取到已删除的 root tag
+            currentTag = newTag
+
+            // 在确保新的 fragment 已显示后再移除 root（这样可以避免 root 的视图遮挡 bottomNav）
+            if (root != null) {
+                try {
+                    fm.beginTransaction()
+                        .remove(root)
+                        .commitNow()
+                    Log.d("MainActivity", "switchToTabs: removed root fragment after showing newFrag")
+                } catch (e: Exception) {
+                    Log.d("MainActivity", "switchToTabs: failed to remove root fragment: ${e.message}")
+                }
+            }
         }
 
-        // 显示选中的 tab
-        val newTag = fragmentTags[selectedIndex]
-        val newFrag = fm.findFragmentByTag(newTag) as NavHostFragment
-        fm.beginTransaction()
-            .show(newFrag)
-            .setPrimaryNavigationFragment(newFrag)
-            .commitNow()
+        // 强制显示 BottomNavigation 并设置选中项为对应的 navGraph id，保证在任何子图跳转后都可见
+        viewBinding.bottomNav.visibility = View.VISIBLE
+        val menuId = navGraphIds.getOrNull(selectedIndex) ?: navGraphIds.first()
+        // 抑制监听器，程序性设置选中项
+        suppressBottomSelection = true
+        viewBinding.bottomNav.selectedItemId = menuId
+        // 额外设置 menu item checked，确保高亮生效
+        viewBinding.bottomNav.menu.findItem(menuId)?.isChecked = true
+        suppressBottomSelection = false
+        // 确保 bottomNav 在最上层，避免被 fragment 覆盖（延迟到 UI 线程队列在事务完成后执行）
+        viewBinding.bottomNav.post {
+            try {
+                viewBinding.bottomNav.bringToFront()
+                viewBinding.bottomNav.elevation = resources.getDimension(R.dimen.bottom_nav_elevation)
+                viewBinding.bottomNav.requestLayout()
+                viewBinding.bottomNav.invalidate()
+                Log.d("MainActivity", "switchToTabs: bottomNav brought to front and refreshed")
+            } catch (e: Exception) {
+                Log.d("MainActivity", "switchToTabs: failed to bring bottomNav to front: ${e.message}")
+            }
+        }
 
-        currentTag = newTag
+        // 清理旧的监听器，防止竞争（再次确保当前 NavController 指向新 fragment）
+        try {
+            currentNavController?.removeOnDestinationChangedListener(destinationChangedListener)
+        } catch (e: Exception) {
+            // ignore
+        }
+
         setNavListenerForTag(currentTag)
     }
 
@@ -156,6 +252,7 @@ class MainActivity : AppCompatActivity() {
         )
 
         bottomNav.setOnItemSelectedListener { item ->
+            if (suppressBottomSelection) return@setOnItemSelectedListener true
             val newIndex = idToIndex[item.itemId] ?: return@setOnItemSelectedListener false
             val newTag = fragmentTags[newIndex]
             if (newTag == currentTag) return@setOnItemSelectedListener true
@@ -186,6 +283,7 @@ class MainActivity : AppCompatActivity() {
 
         // 立即更新一次底部栏状态
         val currentDest = navController.currentDestination
+        Log.d("MainActivity", "setNavListenerForTag: tag=$tag currentDest=${currentDest?.id}")
         viewBinding.bottomNav.visibility = if (currentDest != null && currentDest.id == R.id.loginFragment) View.GONE else View.VISIBLE
     }
 }
