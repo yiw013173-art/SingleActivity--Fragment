@@ -8,7 +8,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.navOptions
 import com.example.myapplicationview.R
 import com.example.myapplicationview.databinding.FragmentLoginBinding
 
@@ -41,36 +40,36 @@ class LoginFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_login, container, false)
+    ): View {
+        // 使用 ViewBinding.inflate 并返回非空的 root
+        _viewBinding = FragmentLoginBinding.inflate(inflater, container, false)
+        return viewBinding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        _viewBinding = FragmentLoginBinding.bind(view)
 
         viewBinding.btnLogin.setOnClickListener {
-            var userName = viewBinding.etUsername.text.toString()
-            var passWord = viewBinding.etPassword.text.toString()
+            val userName = viewBinding.etUsername.text.toString()
+            val passWord = viewBinding.etPassword.text.toString()
             if (userName.isNotEmpty() && passWord.isNotEmpty()){
-                val action2 = LoginFragmentDirections.actionLoginFragmentToMainGraph()
+                // 使用 SafeArgs 生成的 action（nav_graph 中的 action_loginFragment_to_chat_graph）
+                val action = LoginFragmentDirections.actionLoginFragmentToChatGraph()
 
-//                val bundle = Bundle().apply {
-//                    putString("userName",userName)
-//                    putString("passWord",passWord)
-//                }
                 val option = NavOptions.Builder() // 启动模式
                     .setPopUpTo(R.id.loginFragment,true) // 跳转前先回到loginfragment，然后包括自己及上面的所有都删除
                     .setLaunchSingleTop(true) // 如果上面就是要跳转的页面，就不重复打开
                     .build()
-                findNavController().navigate(action2,option)
-//                findNavController().navigate(R.id.action_loginFragment_to_homeFragment,bundle,option)
+                findNavController().navigate(action, option)
                 Log.d("TAG", "onViewCreated: $userName----$passWord")
             }
         }
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _viewBinding = null
+    }
 
     companion object {
         /**
