@@ -5,8 +5,18 @@
     android:id="@+id/nav_graph"
     app:startDestination="@id/loginFragment">
 
+    <!-- 登录页面 -->
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="com.example.myapplicationview.fragment.LoginFragment"
+        android:label="LoginFragment"
+        tools:layout="@layout/fragment_login">
+        <action
+            android:id="@+id/action_loginFragment_to_chat_graph"
+            app:destination="@id/chat_graph" />
+    </fragment>
 
-
+    <!-- 聊天导航图（包含多个页面的完整流程） -->
     <navigation
         android:id="@+id/chat_graph"
         app:startDestination="@id/nav_chat">
@@ -41,52 +51,35 @@
         </fragment>
     </navigation>
 
-    <navigation
+    <!-- 单页导航图（直接使用 Fragment ID 作为图的 ID） -->
+    <fragment
         android:id="@+id/contact_graph"
-        app:startDestination="@id/nav_contact">
-        <fragment
-            android:id="@+id/nav_contact"
-            android:name="com.example.myapplicationview.fragment.ContactFragment"
-            android:label="通讯录" />
-    </navigation>
+        android:name="com.example.myapplicationview.fragment.ContactFragment"
+        android:label="通讯录"
+        tools:layout="@layout/fragment_contact" />
 
-    <navigation
+    <fragment
         android:id="@+id/find_graph"
-        app:startDestination="@id/nav_find">
-        <fragment
-            android:id="@+id/nav_find"
-            android:name="com.example.myapplicationview.fragment.FindFragment"
-            android:label="发现" />
-    </navigation>
+        android:name="com.example.myapplicationview.fragment.FindFragment"
+        android:label="发现"
+        tools:layout="@layout/fragment_find" />
 
-    <navigation
+    <fragment
         android:id="@+id/me_graph"
-        app:startDestination="@id/nav_me">
-        <fragment
-            android:id="@+id/nav_me"
-            android:name="com.example.myapplicationview.fragment.MeFragment"
-            android:label="我" />
-    </navigation>
+        android:name="com.example.myapplicationview.fragment.MeFragment"
+        android:label="我"
+        tools:layout="@layout/fragment_me" />
 
-
+    <!-- 其他页面 -->
     <fragment
         android:id="@+id/homeFragment"
         android:name="com.example.myapplicationview.fragment.HomeFragment"
         android:label="fragment_home"
-        tools:layout="@layout/fragment_home"></fragment>
+        tools:layout="@layout/fragment_home" />
     <fragment
         android:id="@+id/blankFragment"
         android:name="com.example.myapplicationview.fragment.BlankFragment"
         android:label="fragment_blank"
         tools:layout="@layout/fragment_blank" />
-    <fragment
-        android:id="@+id/loginFragment"
-        android:name="com.example.myapplicationview.fragment.LoginFragment"
-        android:label="LoginFragment"
-        tools:layout="@layout/fragment_login">
-        <action
-            android:id="@+id/action_loginFragment_to_chat_graph"
-            app:destination="@id/chat_graph" />
-    </fragment>
 
 </navigation>

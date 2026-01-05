@@ -171,7 +171,7 @@ class MainActivity : AppCompatActivity() {
             val tag = fragmentTags[index]
             var host = fm.findFragmentByTag(tag) as NavHostFragment?
             if (host == null) {
-                // 第一步：使用根图创建 NavHostFragment（不会自动导航到子图的目的地）
+                // 第一步：使用根图创建 NavHostFragment
                 host = NavHostFragment.create(R.navigation.nav_graph)
 
                 fm.beginTransaction()
@@ -179,29 +179,54 @@ class MainActivity : AppCompatActivity() {
                     .hide(host)
                     .commitNow()
 
-                // 第二步：在 Fragment 完全创建后，替换为子图
+                // 第二步：在 Fragment 完全创建后，根据导航图 ID 的类型进行处理
                 val navController = host.navController
                 val inflater = navController.navInflater
                 val rootGraph = inflater.inflate(R.navigation.nav_graph)
-                val childGraph = rootGraph.findNode(navGraphId) as? NavGraph
 
-                if (childGraph != null) {
+                // 检查当前 navGraphId 是否是导航图节点还是普通 Fragment
+                val navNode = rootGraph.findNode(navGraphId)
+
+                if (navNode is NavGraph) {
+                    // 这是一个嵌套导航图（如 chat_graph），需要设置为子图
                     try {
-                        // 尝试直接替换为子图
-                        navController.graph = childGraph
-                        Log.d("MainActivity", "setupNavHosts: created host tag=$tag using childNavGraph=$navGraphId")
-                    } catch (e: IllegalArgumentException) {
-                        // 如果设置失败（可能因为导航冲突），记录错误并使用根图作为降级方案
-                        Log.e("MainActivity", "setupNavHosts: failed to set childGraph for $navGraphId, using root graph instead", e)
+                        navController.graph = navNode
+                        Log.d("MainActivity", "setupNavHosts: created host tag=$tag using NavGraph=$navGraphId")
+                    } catch (e: IndexOutOfBoundsException) {
+                        Log.e("MainActivity", "setupNavHosts: IndexOutOfBoundsException when setting NavGraph for $navGraphId", e)
                         try {
                             val rootGraphFallback = inflater.inflate(R.navigation.nav_graph)
                             navController.graph = rootGraphFallback
                         } catch (fallbackError: Exception) {
-                            Log.e("MainActivity", "setupNavHosts: even fallback to root graph failed", fallbackError)
+                            Log.e("MainActivity", "setupNavHosts: fallback to root graph failed", fallbackError)
+                        }
+                    } catch (e: Exception) {
+                        Log.e("MainActivity", "setupNavHosts: failed to set NavGraph for $navGraphId", e)
+                        try {
+                            val rootGraphFallback = inflater.inflate(R.navigation.nav_graph)
+                            navController.graph = rootGraphFallback
+                        } catch (fallbackError: Exception) {
+                            Log.e("MainActivity", "setupNavHosts: even fallback failed", fallbackError)
                         }
                     }
                 } else {
-                    Log.d("MainActivity", "setupNavHosts: created host tag=$tag fallback to root graph")
+                    // 这是一个普通 Fragment（如 contact_graph、find_graph、me_graph）
+                    // 保持使用根图，NavController 会自动导航到指定的 Fragment
+                    try {
+                        // 设置根图，让 NavController 初始化
+                        navController.graph = rootGraph
+                        // 然后导航到指定的 Fragment
+                        navController.navigate(navGraphId)
+                        Log.d("MainActivity", "setupNavHosts: created host tag=$tag and navigated to Fragment=$navGraphId")
+                    } catch (e: Exception) {
+                        Log.e("MainActivity", "setupNavHosts: failed to navigate to Fragment $navGraphId", e)
+                        try {
+                            val rootGraphFallback = inflater.inflate(R.navigation.nav_graph)
+                            navController.graph = rootGraphFallback
+                        } catch (fallbackError: Exception) {
+                            Log.e("MainActivity", "setupNavHosts: fallback failed", fallbackError)
+                        }
+                    }
                 }
             }
         }

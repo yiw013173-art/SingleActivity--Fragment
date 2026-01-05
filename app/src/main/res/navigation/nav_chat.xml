@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/chat_graph"
+    app:startDestination="@id/nav_chat">
+
+    <fragment
+        android:id="@+id/nav_chat"
+        android:name="com.example.myapplicationview.fragment.ChatFragment"
+        android:label="微信">
+        <action
+            android:id="@+id/action_nav_chat_to_chatFragment2"
+            app:destination="@id/chatFragment2" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/chatFragment2"
+        android:name="com.example.myapplicationview.fragment.ChatFragment2"
+        android:label="fragment_chat2"
+        tools:layout="@layout/fragment_chat2">
+        <action
+            android:id="@+id/action_chatFragment2_to_chatFragment3"
+            app:destination="@id/chatFragment3" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/chatFragment3"
+        android:name="com.example.myapplicationview.fragment.ChatFragment3"
+        android:label="fragment_chat3"
+        tools:layout="@layout/fragment_chat3">
+        <argument
+            android:name="chat_people"
+            android:defaultValue="@null"
+            app:argType="com.example.myapplicationview.model.People"
+            app:nullable="true" />
+    </fragment>
+
+</navigation>
