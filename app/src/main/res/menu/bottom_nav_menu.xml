@@ -2,7 +2,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/chat_graph"
+        android:id="@+id/chatWx_graph"
         android:icon="@drawable/ic_launcher_foreground"
         android:title="微信" />
 

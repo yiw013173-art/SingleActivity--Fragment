@@ -18,7 +18,7 @@ class MainActivity : AppCompatActivity() {
 
     // 使用 nav_graph.xml 中定义的子 navigation 的 id 作为每个 tab 的起始目的地 id（用于 menu id 映射）
     private val navGraphIds: List<Int> = listOf(
-        R.id.chat_graph,
+        R.id.chatWx_graph,
         R.id.contact_graph,
         R.id.find_graph,
         R.id.me_graph
@@ -166,68 +166,33 @@ class MainActivity : AppCompatActivity() {
     private fun setupNavHosts() {
         val fm = supportFragmentManager
 
-        // 仅创建 hosts，不改变显示状态
         navGraphIds.forEachIndexed { index, navGraphId ->
             val tag = fragmentTags[index]
             var host = fm.findFragmentByTag(tag) as NavHostFragment?
+
             if (host == null) {
-                // 第一步：使用根图创建 NavHostFragment
-                host = NavHostFragment.create(R.navigation.nav_graph)
+                // 1. 创建空的 NavHostFragment
+                host = NavHostFragment.create(0)
 
                 fm.beginTransaction()
                     .add(R.id.nav_host_fragment, host, tag)
                     .hide(host)
                     .commitNow()
 
-                // 第二步：在 Fragment 完全创建后，根据导航图 ID 的类型进行处理
-                val navController = host.navController
-                val inflater = navController.navInflater
-                val rootGraph = inflater.inflate(R.navigation.nav_graph)
-
-                // 检查当前 navGraphId 是否是导航图节点还是普通 Fragment
-                val navNode = rootGraph.findNode(navGraphId)
-
-                if (navNode is NavGraph) {
-                    // 这是一个嵌套导航图（如 chat_graph），需要设置为子图
-                    try {
-                        navController.graph = navNode
-                        Log.d("MainActivity", "setupNavHosts: created host tag=$tag using NavGraph=$navGraphId")
-                    } catch (e: IndexOutOfBoundsException) {
-                        Log.e("MainActivity", "setupNavHosts: IndexOutOfBoundsException when setting NavGraph for $navGraphId", e)
-                        try {
-                            val rootGraphFallback = inflater.inflate(R.navigation.nav_graph)
-                            navController.graph = rootGraphFallback
-                        } catch (fallbackError: Exception) {
-                            Log.e("MainActivity", "setupNavHosts: fallback to root graph failed", fallbackError)
-                        }
-                    } catch (e: Exception) {
-                        Log.e("MainActivity", "setupNavHosts: failed to set NavGraph for $navGraphId", e)
-                        try {
-                            val rootGraphFallback = inflater.inflate(R.navigation.nav_graph)
-                            navController.graph = rootGraphFallback
-                        } catch (fallbackError: Exception) {
-                            Log.e("MainActivity", "setupNavHosts: even fallback failed", fallbackError)
-                        }
-                    }
-                } else {
-                    // 这是一个普通 Fragment（如 contact_graph、find_graph、me_graph）
-                    // 保持使用根图，NavController 会自动导航到指定的 Fragment
-                    try {
-                        // 设置根图，让 NavController 初始化
-                        navController.graph = rootGraph
-                        // 然后导航到指定的 Fragment
-                        navController.navigate(navGraphId)
-                        Log.d("MainActivity", "setupNavHosts: created host tag=$tag and navigated to Fragment=$navGraphId")
-                    } catch (e: Exception) {
-                        Log.e("MainActivity", "setupNavHosts: failed to navigate to Fragment $navGraphId", e)
-                        try {
-                            val rootGraphFallback = inflater.inflate(R.navigation.nav_graph)
-                            navController.graph = rootGraphFallback
-                        } catch (fallbackError: Exception) {
-                            Log.e("MainActivity", "setupNavHosts: fallback failed", fallbackError)
-                        }
-                    }
+                // 2. 匹配对应的独立导航资源文件
+                val graphResId = when(navGraphId) {
+                    R.id.chatWx_graph -> R.navigation.nav_chat
+                    R.id.contact_graph -> R.navigation.nav_contact
+                    R.id.find_graph -> R.navigation.nav_find
+                    R.id.me_graph -> R.navigation.nav_me
+                    else -> R.navigation.nav_graph
                 }
+
+                // 3. 设置图。NavController 会自动导航到该 XML 里的 startDestination
+                // 只要 nav_chat.xml 里的 startDestination 不是 login，就不会显示登录页
+                host.navController.setGraph(graphResId)
+
+                Log.d("MainActivity", "setupNavHosts: Tag $tag loaded Graph ${resources.getResourceEntryName(graphResId)}")
             }
         }
     }
@@ -315,7 +280,7 @@ class MainActivity : AppCompatActivity() {
         val bottomNav = viewBinding.bottomNav
         // menu item id 与 navGraphIds 保持一致（bottom_nav_menu 中使用了 chat_graph 等 id）
         val idToIndex: Map<Int, Int> = mapOf(
-            R.id.chat_graph to 0,
+            R.id.chatWx_graph to 0,
             R.id.contact_graph to 1,
             R.id.find_graph to 2,
             R.id.me_graph to 3

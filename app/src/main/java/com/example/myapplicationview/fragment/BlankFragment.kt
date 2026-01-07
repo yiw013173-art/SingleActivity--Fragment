@@ -57,8 +57,8 @@ class BlankFragment : Fragment() {
             findNavController().popBackStack()
             val options = NavOptions.Builder()
                 .setLaunchSingleTop(true)
-                .setPopUpTo(R.id.homeFragment,true)
-                .build()
+//                .setPopUpTo(R.id.homeFragment,true)
+//                .build()
 //            findNavController().navigate(R.id.action_blankFragment_to_homeFragment,null,options)
             //清空homeFragment（包括自己）以上的所有fragment，并且跳转到homeFragment
 //            findNavController().navigate(R.id.action_blankFragment_to_homeFragment){
