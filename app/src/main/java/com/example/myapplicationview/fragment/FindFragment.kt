@@ -1,13 +1,19 @@
 package com.example.myapplicationview.fragment
 
+import UserAdapter
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.myapplicationview.R
 import com.example.myapplicationview.databinding.FragmentFindBinding
 import com.example.myapplicationview.viewmodel.FindViewModel
+import kotlinx.coroutines.launch
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -49,8 +55,17 @@ class FindFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val adapter = UserAdapter()
+        viewBinding.recyclerViewFind.layoutManager = LinearLayoutManager(requireContext())
+        viewBinding.recyclerViewFind.adapter = adapter
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED){
+                findViewModel.userFlow.collect {
+                    adapter.submitList(it.results)
+                }
+            }
+        }
         findViewModel.getUserInfo(100)
-
     }
 
     companion object {
