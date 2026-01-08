@@ -6,11 +6,19 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.example.myapplicationview.R
+import com.example.myapplicationview.databinding.FragmentFindBinding
+import com.example.myapplicationview.viewmodel.FindViewModel
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
+
+private val findViewModel: FindViewModel by lazy {
+    FindViewModel()
+}
+
+private lateinit var viewBinding: FragmentFindBinding
 
 /**
  * A simple [Fragment] subclass.
@@ -35,7 +43,14 @@ class FindFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_find, container, false)
+        viewBinding = FragmentFindBinding.inflate(inflater,container,false)
+        return viewBinding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        findViewModel.getUserInfo(100)
+
     }
 
     companion object {

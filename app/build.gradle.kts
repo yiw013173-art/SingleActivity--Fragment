@@ -57,4 +57,15 @@ dependencies {
     implementation("androidx.navigation:navigation-ui-ktx:$nav_version")
     implementation("com.google.android.material:material:1.11.0")
     implementation(project(":core:network"))
+    // ViewModel 核心（含 Kotlin 扩展）
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0")
+// Lifecycle 核心（监听生命周期、协程等）
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
+// Fragment KTX（提供 viewModels() 委托函数）
+    implementation("androidx.fragment:fragment-ktx:1.6.1")
+    implementation("androidx.recyclerview:recyclerview:1.3.2")
+    // 推荐使用 Coil，它是 Kotlin 原生的图片库，轻量且支持协程
+    implementation("io.coil-kt:coil:2.4.0")
+    implementation("androidx.fragment:fragment-ktx:1.6.2")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2")
 }
