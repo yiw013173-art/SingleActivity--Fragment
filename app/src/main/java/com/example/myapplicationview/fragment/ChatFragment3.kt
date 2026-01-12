@@ -6,7 +6,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.datastore.preferences.core.edit
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.myapplicationview.R
@@ -74,19 +76,12 @@ class ChatFragment3 : Fragment() {
             it[key]?:0
         }
 
-        lifecycleScope.launch {
-            launch {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 requireContext().dataStore.data.collect {
-                    viewBinding.toPop.text = "读取到的count值为：${it[key]?:0}"
+                    viewBinding.toPop.text = "读取到的count值为：${it[key] ?: 0}"
                 }
             }
-
-//            launch {
-//                requireContext().dataStore.edit {
-//                    it[key] = 30
-//                }
-//            }
-
         }
 
     }

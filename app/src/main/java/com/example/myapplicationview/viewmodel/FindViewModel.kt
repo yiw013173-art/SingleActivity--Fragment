@@ -2,7 +2,8 @@ package com.example.myapplicationview.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.myapplicationview.repository.FindRepository
+import com.example.network.model.NetResult
+import com.example.network.repository.FindRepository
 import com.example.network.model.UserResponse
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,7 +15,14 @@ class FindViewModel: ViewModel() {
 
     fun getUserInfo(count:Int){
         viewModelScope.launch {
-           _userFlow.value =  FindRepository.getUserInfo(count)
+            when(val result = FindRepository.getUserInfo(count)){
+                is NetResult.Success -> {
+                    _userFlow.value = result.data
+                }
+                is NetResult.Error -> {
+                    _userFlow.value = UserResponse()
+                }
+            }
         }
     }
 }
