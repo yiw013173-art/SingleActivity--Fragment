@@ -5,10 +5,18 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.datastore.preferences.core.edit
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.myapplicationview.R
 import com.example.myapplicationview.databinding.FragmentChat3Binding
+import com.example.myapplicationview.util.dataStore
+import com.example.myapplicationview.util.key
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -54,7 +62,31 @@ class ChatFragment3 : Fragment() {
             viewBinding.chat3Text.text = "${it.ages}------${it.names}"
         }
         viewBinding.toPop.setOnClickListener {
+            viewLifecycleOwner.lifecycleScope.launch {
+                requireContext().dataStore.edit {
+                    it[key] = 200
+                }
+            }
             findNavController().popBackStack()
+        }
+
+        val count: Flow<Int> = requireContext().dataStore.data.map {
+            it[key]?:0
+        }
+
+        lifecycleScope.launch {
+            launch {
+                requireContext().dataStore.data.collect {
+                    viewBinding.toPop.text = "读取到的count值为：${it[key]?:0}"
+                }
+            }
+
+//            launch {
+//                requireContext().dataStore.edit {
+//                    it[key] = 30
+//                }
+//            }
+
         }
 
     }

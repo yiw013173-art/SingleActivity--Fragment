@@ -23,6 +23,7 @@ android {
 
     buildFeatures {
         viewBinding = true
+        dataBinding = false
     }
 
     buildTypes {
@@ -35,11 +36,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "17"
     }
 }
 
@@ -68,4 +69,5 @@ dependencies {
     implementation("io.coil-kt:coil:2.4.0")
     implementation("androidx.fragment:fragment-ktx:1.6.2")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2")
+    implementation("androidx.datastore:datastore-preferences:1.1.0")
 }
