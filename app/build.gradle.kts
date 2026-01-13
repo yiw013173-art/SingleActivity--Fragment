@@ -70,4 +70,14 @@ dependencies {
     implementation("androidx.fragment:fragment-ktx:1.6.2")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2")
     implementation("androidx.datastore:datastore-preferences:1.1.0")
+    implementation("io.github.scwang90:refresh-layout-kernel:2.1.0")
+// 核心
+    implementation("io.github.scwang90:refresh-header-classics:2.1.0")
+// 经典刷新头
+    implementation("io.github.scwang90:refresh-footer-classics:2.1.0")
+// 经典加载底
+    // 必须添加核心库，SmartRefreshLayout 依赖它处理嵌套滚动
+    implementation("androidx.core:core-ktx:1.9.0")
+// 建议同时确保以下库也存在（通常项目自带）
+    implementation("androidx.appcompat:appcompat:1.6.1")
 }

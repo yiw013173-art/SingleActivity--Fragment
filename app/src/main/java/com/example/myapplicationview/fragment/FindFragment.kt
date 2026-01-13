@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -36,6 +37,10 @@ class FindFragment : Fragment() {
     private var param1: String? = null
     private var param2: String? = null
 
+    private val findViewModel: FindViewModel by viewModels()
+
+    private lateinit var viewBinding: FragmentFindBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -55,6 +60,7 @@ class FindFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        findViewModel.loadData(true)
         val adapter = UserAdapter()
         viewBinding.recyclerViewFind.layoutManager = LinearLayoutManager(requireContext())
         viewBinding.recyclerViewFind.adapter = adapter
@@ -62,10 +68,19 @@ class FindFragment : Fragment() {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED){
                 findViewModel.userFlow.collect {
                     adapter.submitList(it.results)
+                    viewBinding.refreshLayoutFind.finishRefresh()
+                    viewBinding.refreshLayoutFind.finishLoadMore()
                 }
             }
         }
-        findViewModel.getUserInfo(100)
+        viewBinding.refreshLayoutFind.setOnRefreshListener {
+            findViewModel.loadData(true)
+        }
+
+        viewBinding.refreshLayoutFind.setOnLoadMoreListener {
+            findViewModel.loadData(false)
+        }
+//        findViewModel.getUserInfo(100)
     }
 
     companion object {
