@@ -8,7 +8,7 @@
     <!-- 登录页面 -->
     <fragment
         android:id="@+id/loginFragment"
-        android:name="com.example.myapplicationview.fragment.LoginFragment"
+        android:name="com.example.myapplicationview.ui.login.LoginFragment"
         android:label="LoginFragment"
         tools:layout="@layout/fragment_login">
         <action

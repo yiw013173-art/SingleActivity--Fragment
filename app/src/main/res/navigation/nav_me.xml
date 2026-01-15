@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/nav_me"
-        android:name="com.example.myapplicationview.fragment.MeFragment"
+        android:name="com.example.myapplicationview.ui.me.MeFragment"
         android:label="我" >
         <action
             android:id="@+id/action_nav_me_to_meFragment2"
@@ -15,7 +15,7 @@
     </fragment>
     <fragment
         android:id="@+id/meFragment2"
-        android:name="com.example.myapplicationview.fragment.MeFragment2"
+        android:name="com.example.myapplicationview.ui.me.MeFragment2"
         android:label="fragment_me2"
         tools:layout="@layout/fragment_me2" />
 

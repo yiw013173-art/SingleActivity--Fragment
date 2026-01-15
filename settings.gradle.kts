@@ -21,4 +21,3 @@ dependencyResolutionManagement {
 
 rootProject.name = "My ApplicationView"
 include(":app")
-include(":core:network")

@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/nav_find"
-        android:name="com.example.myapplicationview.fragment.FindFragment"
+        android:name="com.example.myapplicationview.ui.find.FindFragment"
         android:label="发现" />
 
 </navigation>

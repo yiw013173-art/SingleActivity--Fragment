@@ -5,7 +5,7 @@
     android:orientation="vertical"
     android:gravity="center"
     android:layout_height="match_parent"
-    tools:context=".fragment.MeFragment">
+    tools:context=".ui.me.MeFragment">
 
     <Button
         android:layout_width="wrap_content"
