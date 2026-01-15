@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.myapplicationview.R
 import com.example.myapplicationview.databinding.FragmentFindBinding
 import com.example.myapplicationview.viewmodel.FindViewModel
+import com.scwang.smart.refresh.layout.constant.RefreshState
 import kotlinx.coroutines.launch
 
 // TODO: Rename parameter arguments, choose names that match
@@ -39,7 +40,13 @@ class FindFragment : Fragment() {
 
     private val findViewModel: FindViewModel by viewModels()
 
-    private lateinit var viewBinding: FragmentFindBinding
+    private  var _viewBinding: FragmentFindBinding? = null
+
+    private val viewBinding get() = _viewBinding!!
+
+    private val userAdapter by lazy {
+        UserAdapter()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,25 +61,26 @@ class FindFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        viewBinding = FragmentFindBinding.inflate(inflater,container,false)
+        _viewBinding = FragmentFindBinding.inflate(inflater,container,false)
         return viewBinding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        findViewModel.loadData(true)
-        val adapter = UserAdapter()
-        viewBinding.recyclerViewFind.layoutManager = LinearLayoutManager(requireContext())
-        viewBinding.recyclerViewFind.adapter = adapter
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED){
-                findViewModel.userFlow.collect {
-                    adapter.submitList(it.results)
-                    viewBinding.refreshLayoutFind.finishRefresh()
-                    viewBinding.refreshLayoutFind.finishLoadMore()
-                }
-            }
+        setupRecyclerView()
+        setupRefreshLayout()
+        setupObservers()
+        if (userAdapter.itemCount ==0) viewBinding.refreshLayoutFind.autoRefresh()
+    }
+
+    private fun setupRecyclerView(){
+        viewBinding.recyclerViewFind.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = userAdapter
         }
+    }
+
+    private fun setupRefreshLayout(){
         viewBinding.refreshLayoutFind.setOnRefreshListener {
             findViewModel.loadData(true)
         }
@@ -80,7 +88,39 @@ class FindFragment : Fragment() {
         viewBinding.refreshLayoutFind.setOnLoadMoreListener {
             findViewModel.loadData(false)
         }
-//        findViewModel.getUserInfo(100)
+    }
+
+    private fun setupObservers(){
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED){
+                findViewModel.userFlow.collect {data->
+                    userAdapter.submitList(data.results)
+                    handleSmartRefreshState(data.results.size)
+                }
+            }
+        }
+    }
+
+    private fun handleSmartRefreshState(size: Int){
+        when(viewBinding.refreshLayoutFind.state){
+            RefreshState.Refreshing->{
+                viewBinding.refreshLayoutFind.finishRefresh()
+            }
+
+            RefreshState.Loading->{
+                viewBinding.refreshLayoutFind.finishLoadMore()
+            }
+
+            else -> {}
+        }
+        if (size < findViewModel.pageSize){
+            viewBinding.refreshLayoutFind.setNoMoreData(true)
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _viewBinding = null
     }
 
     companion object {
