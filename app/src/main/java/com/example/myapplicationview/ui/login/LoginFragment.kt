@@ -4,13 +4,16 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.viewModels
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import com.example.myapplicationview.core.base.BaseFragment
 import com.example.myapplicationview.R
 import com.example.myapplicationview.databinding.FragmentLoginBinding
+import com.example.myapplicationview.ui.login.viewmodel.LoginViewModel
 
 class LoginFragment : BaseFragment<FragmentLoginBinding>() {
+    private val viewModel: LoginViewModel by viewModels()
 
     override fun createBinding(
         inflater: LayoutInflater,
@@ -21,11 +24,9 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        binding.btnLogin.setOnClickListener {
-            val userName = binding.etUsername.text.toString()
-            val passWord = binding.etPassword.text.toString()
-            if (userName.isNotEmpty() && passWord.isNotEmpty()){
+        binding.viewModel = viewModel
+        viewModel.loginEvent.observe(viewLifecycleOwner) { event ->
+            event.getContentIfNotHandled()?.let {
                 // 使用 SafeArgs 生成的 action（nav_graph 中的 action_loginFragment_to_chat_graph）
                 val action = LoginFragmentDirections.actionLoginFragmentToChatGraph()
 
