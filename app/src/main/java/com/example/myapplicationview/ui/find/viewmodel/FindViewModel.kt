@@ -1,11 +1,11 @@
-package com.example.myapplicationview.ui.find
+package com.example.myapplicationview.ui.find.viewmodel
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.myapplicationview.core.network.repository.FindRepository
 import com.example.myapplicationview.core.network.model.UserDto
+import com.example.myapplicationview.core.network.repository.FindRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext

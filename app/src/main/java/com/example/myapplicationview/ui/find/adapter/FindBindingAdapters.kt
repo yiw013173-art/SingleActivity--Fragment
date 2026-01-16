@@ -1,4 +1,4 @@
-package com.example.myapplicationview.ui.find
+package com.example.myapplicationview.ui.find.adapter
 
 import android.widget.ImageView
 import androidx.databinding.BindingAdapter
@@ -7,6 +7,7 @@ import coil.load
 import coil.transform.CircleCropTransformation
 import com.example.myapplicationview.R
 import com.example.myapplicationview.core.network.model.UserDto
+import com.example.myapplicationview.ui.find.UserAdapter
 
 @BindingAdapter("users")
 fun bindUsers(recyclerView: RecyclerView, users: List<UserDto>?) {

@@ -1,4 +1,4 @@
-package com.example.myapplicationview.ui.me
+package com.example.myapplicationview.ui.me.viewmodel
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -31,8 +31,8 @@ class MeViewModel : ViewModel() {
         val targetPage = if (isRefresh)  1 else page+1
         viewModelScope.launch {
             try {
-                val getList = withContext(Dispatchers.IO){
-                    MeRepository.getMeDataCache(targetPage,limit)
+                val getList = withContext(Dispatchers.IO) {
+                    MeRepository.getMeDataCache(targetPage, limit)
                 }
                 if (isRefresh){
                     allList.clear()

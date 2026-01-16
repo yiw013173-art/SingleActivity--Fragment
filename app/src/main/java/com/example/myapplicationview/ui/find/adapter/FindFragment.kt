@@ -1,4 +1,4 @@
-package com.example.myapplicationview.ui.find
+package com.example.myapplicationview.ui.find.adapter
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -7,6 +7,8 @@ import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import com.example.myapplicationview.core.base.BaseFragment
 import com.example.myapplicationview.databinding.FragmentFindBinding
+import com.example.myapplicationview.ui.find.viewmodel.FindViewModel
+import com.example.myapplicationview.ui.find.UserAdapter
 import com.scwang.smart.refresh.layout.constant.RefreshState
 
 class FindFragment : BaseFragment<FragmentFindBinding>() {

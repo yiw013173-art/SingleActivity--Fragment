@@ -8,7 +8,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.example.myapplicationview.core.base.BaseFragment
 import com.example.myapplicationview.databinding.FragmentChatBinding
-import com.example.myapplicationview.ui.main.ActivityViewModel
+import com.example.myapplicationview.ui.main.viewmodel.ActivityViewModel
 
 class ChatFragment : BaseFragment<FragmentChatBinding>() {
     private val userViewModel: ActivityViewModel by activityViewModels()

@@ -5,13 +5,13 @@
     <data>
         <variable
             name="viewModel"
-            type="com.example.myapplicationview.ui.find.FindViewModel" />
+            type="com.example.myapplicationview.ui.find.viewmodel.FindViewModel" />
     </data>
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".ui.find.FindFragment">
+        tools:context=".ui.find.adapter.FindFragment">
 
         <com.scwang.smart.refresh.layout.SmartRefreshLayout
             android:id="@+id/refreshLayout_find"

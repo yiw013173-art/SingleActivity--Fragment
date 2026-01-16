@@ -7,6 +7,8 @@ import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import com.example.myapplicationview.core.base.BaseFragment
 import com.example.myapplicationview.databinding.FragmentMe2Binding
+import com.example.myapplicationview.ui.me.adapter.MeAdapter
+import com.example.myapplicationview.ui.me.viewmodel.MeViewModel
 import com.scwang.smart.refresh.layout.constant.RefreshState
 
 class MeFragment2 : BaseFragment<FragmentMe2Binding>() {

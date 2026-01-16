@@ -6,7 +6,7 @@
 
         <variable
             name="viewModel"
-            type="com.example.myapplicationview.ui.main.ActivityViewModel" />
+            type="com.example.myapplicationview.ui.main.viewmodel.ActivityViewModel" />
     </data>
 
     <LinearLayout
