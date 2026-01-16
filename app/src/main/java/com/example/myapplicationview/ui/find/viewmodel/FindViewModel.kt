@@ -4,12 +4,12 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.myapplicationview.core.network.bean.NetResult
 import com.example.myapplicationview.core.network.model.UserDto
 import com.example.myapplicationview.core.network.repository.FindRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -24,6 +24,31 @@ class FindViewModel @Inject constructor(
     private var currentPage = 1
     val pageSize = 10
 
+    init {
+        observeUsers()
+    }
+
+    private fun observeUsers() {
+        viewModelScope.launch {
+            repository.userFlow.collect { result ->
+                when (result) {
+                    is NetResult.Success -> {
+                        val list = result.data.results
+                        if (currentPage == 1) {
+                            allList.clear()
+                        }
+                        allList.addAll(list)
+                        _users.value = allList.toList()
+                    }
+                    is NetResult.Error -> {
+                        _users.value = allList.toList()
+                    }
+                    null -> Unit
+                }
+            }
+        }
+    }
+
     fun loadData(isRefresh: Boolean) {
         viewModelScope.launch {
             try {
@@ -32,17 +57,7 @@ class FindViewModel @Inject constructor(
                 } else {
                     currentPage++
                 }
-                val list = withContext(Dispatchers.IO) {
-                    repository.getUserInfoWithCache(pageSize, currentPage).results
-                }
-                if (isRefresh) {
-                    allList.clear()
-                }
-                allList.addAll(list)
-                _users.value = allList.toList()
-                launch(Dispatchers.IO) {
-                    repository.preloadData(pageSize, currentPage + 1)
-                }
+                repository.refreshUsers(pageSize, currentPage)
             } catch (e: Exception) {
                 e.printStackTrace()
                 _users.value = allList.toList()

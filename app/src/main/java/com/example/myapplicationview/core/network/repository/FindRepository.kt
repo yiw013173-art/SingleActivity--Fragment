@@ -1,35 +1,36 @@
 package com.example.myapplicationview.core.network.repository
 
 import com.example.myapplicationview.core.network.api.UserApiService
-import com.example.myapplicationview.core.network.model.UserDto
+import com.example.myapplicationview.core.network.bean.NetResult
 import com.example.myapplicationview.core.network.model.UserResponse
-import java.util.concurrent.ConcurrentHashMap
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class FindRepository @Inject constructor(
     private val apiService: UserApiService
-) {
+) : BaseRepository() {
 
-    private val pageCache = ConcurrentHashMap<Int, List<UserDto>>()
+    private val _userFlow = MutableStateFlow<NetResult<UserResponse>?>(null)
+    val userFlow: StateFlow<NetResult<UserResponse>?> = _userFlow.asStateFlow()
 
-    suspend fun getUserInfoWithCache(count: Int, page: Int): UserResponse {
-        val cacheList = pageCache.remove(page)
-        if (cacheList != null) {
-            return UserResponse(results = cacheList)
-        }
-        return apiService.getUserInfoWithIndex(count, page)
+    suspend fun fetchUsers(count: Int, page: Int): NetResult<UserResponse> {
+        return callRequest { NetResult.Success(apiService.getUserInfoWithIndex(count, page)) }
     }
 
-    suspend fun preloadData(count: Int, page: Int) {
-        try {
-            if (!pageCache.containsKey(page)) {
-                val response = apiService.getUserInfoWithIndex(count, page)
-                pageCache[page] = response.results
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+    suspend fun preloadUsers(count: Int, page: Int) {
+        clearUsers()
+        refreshUsers(count, page)
+    }
+
+    suspend fun refreshUsers(count: Int, page: Int) {
+        _userFlow.value = fetchUsers(count, page)
+    }
+
+    fun clearUsers() {
+        _userFlow.value = null
     }
 }
