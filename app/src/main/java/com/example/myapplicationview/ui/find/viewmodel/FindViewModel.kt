@@ -8,7 +8,6 @@ import com.example.myapplicationview.core.network.bean.NetResult
 import com.example.myapplicationview.core.network.model.UserDto
 import com.example.myapplicationview.core.network.repository.FindRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 

@@ -2,4 +2,15 @@
     <string name="app_name">My ApplicationView</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">你好孩子</string>
+    <string name="contact_fetch_users_button">进入页面并请求用户</string>
+    <string name="contact_preload_users_button">预加载后进入页面</string>
+    <string name="contact_fetch_users_title">请求用户数据</string>
+    <string name="contact_preload_users_title">预加载用户数据</string>
+    <string name="contact_status_loading">加载中...</string>
+    <string name="contact_status_waiting">等待数据...</string>
+    <string name="contact_status_error">错误：%1$s</string>
+    <string name="contact_status_success">成功：%1$d 条</string>
+    <string name="contact_fetch_users_retry">重新请求</string>
+    <string name="contact_elapsed_waiting">耗时：--</string>
+    <string name="contact_elapsed_time">耗时：%1$d ms</string>
 </resources>
