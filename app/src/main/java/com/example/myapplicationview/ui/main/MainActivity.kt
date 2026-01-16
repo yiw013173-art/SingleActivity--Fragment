@@ -13,7 +13,9 @@ import androidx.navigation.NavDestination
 import androidx.navigation.fragment.NavHostFragment
 import com.example.myapplicationview.R
 import com.example.myapplicationview.databinding.ActivityMainBinding
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     private lateinit var viewBinding: ActivityMainBinding
 

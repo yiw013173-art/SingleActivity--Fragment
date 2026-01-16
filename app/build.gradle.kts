@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.hilt.android)
     id("org.jetbrains.kotlin.kapt")
     id("androidx.navigation.safeargs.kotlin")
     id("kotlin-parcelize")
@@ -46,6 +47,10 @@ android {
     }
 }
 
+kapt {
+    correctErrorTypes = true
+}
+
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
@@ -79,4 +84,6 @@ dependencies {
     implementation(libs.refresh.footer.classics)
 // 经典加载底
     implementation(libs.timber)
+    implementation(libs.hilt.android)
+    kapt(libs.hilt.compiler)
 }

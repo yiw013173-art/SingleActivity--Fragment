@@ -3,13 +3,14 @@ package com.example.myapplicationview.core.network.repository
 import com.example.myapplicationview.core.network.api.UserApiService
 import com.example.myapplicationview.core.network.model.UserDto
 import com.example.myapplicationview.core.network.model.UserResponse
-import com.example.myapplicationview.core.network.retrofit.RetrofitManager
 import java.util.concurrent.ConcurrentHashMap
+import javax.inject.Inject
+import javax.inject.Singleton
 
-object FindRepository {
-    private val apiService by lazy {
-        RetrofitManager.create(UserApiService::class.java)
-    }
+@Singleton
+class FindRepository @Inject constructor(
+    private val apiService: UserApiService
+) {
 
     private val pageCache = ConcurrentHashMap<Int, List<UserDto>>()
 

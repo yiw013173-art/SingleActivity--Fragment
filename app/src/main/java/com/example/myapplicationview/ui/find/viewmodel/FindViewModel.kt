@@ -6,11 +6,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.myapplicationview.core.network.model.UserDto
 import com.example.myapplicationview.core.network.repository.FindRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
-class FindViewModel : ViewModel() {
+@HiltViewModel
+class FindViewModel @Inject constructor(
+    private val repository: FindRepository
+) : ViewModel() {
     private val _users = MutableLiveData<List<UserDto>>(emptyList())
     val users: LiveData<List<UserDto>> = _users
 
@@ -28,7 +33,7 @@ class FindViewModel : ViewModel() {
                     currentPage++
                 }
                 val list = withContext(Dispatchers.IO) {
-                    FindRepository.getUserInfoWithCache(pageSize, currentPage).results
+                    repository.getUserInfoWithCache(pageSize, currentPage).results
                 }
                 if (isRefresh) {
                     allList.clear()
@@ -36,7 +41,7 @@ class FindViewModel : ViewModel() {
                 allList.addAll(list)
                 _users.value = allList.toList()
                 launch(Dispatchers.IO) {
-                    FindRepository.preloadData(pageSize, currentPage + 1)
+                    repository.preloadData(pageSize, currentPage + 1)
                 }
             } catch (e: Exception) {
                 e.printStackTrace()

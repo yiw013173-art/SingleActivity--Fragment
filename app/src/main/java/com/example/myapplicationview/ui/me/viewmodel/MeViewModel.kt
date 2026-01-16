@@ -6,11 +6,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.myapplicationview.core.network.model.MeData
 import com.example.myapplicationview.core.network.repository.MeRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
-class MeViewModel : ViewModel() {
+@HiltViewModel
+class MeViewModel @Inject constructor(
+    private val repository: MeRepository
+) : ViewModel() {
     private val _items = MutableLiveData<List<MeData>>(emptyList())
     val items: LiveData<List<MeData>> = _items
 
@@ -32,7 +37,7 @@ class MeViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 val getList = withContext(Dispatchers.IO) {
-                    MeRepository.getMeDataCache(targetPage, limit)
+                    repository.getMeDataCache(targetPage, limit)
                 }
                 if (isRefresh){
                     allList.clear()

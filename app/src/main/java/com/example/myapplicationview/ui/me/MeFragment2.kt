@@ -10,7 +10,9 @@ import com.example.myapplicationview.databinding.FragmentMe2Binding
 import com.example.myapplicationview.ui.me.adapter.MeAdapter
 import com.example.myapplicationview.ui.me.viewmodel.MeViewModel
 import com.scwang.smart.refresh.layout.constant.RefreshState
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MeFragment2 : BaseFragment<FragmentMe2Binding>() {
     private val viewModel: MeViewModel by viewModels()
     private val adapter = MeAdapter()

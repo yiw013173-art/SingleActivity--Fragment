@@ -10,7 +10,9 @@ import com.example.myapplicationview.databinding.FragmentFindBinding
 import com.example.myapplicationview.ui.find.viewmodel.FindViewModel
 import com.example.myapplicationview.ui.find.UserAdapter
 import com.scwang.smart.refresh.layout.constant.RefreshState
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class FindFragment : BaseFragment<FragmentFindBinding>() {
     private val findViewModel: FindViewModel by viewModels()
 
