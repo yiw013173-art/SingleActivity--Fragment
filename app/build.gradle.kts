@@ -23,6 +23,7 @@ android {
     }
 
     buildFeatures {
+        buildConfig = true
         viewBinding = true
         dataBinding = true
     }
@@ -78,4 +79,5 @@ dependencies {
 // 经典刷新头
     implementation("io.github.scwang90:refresh-footer-classics:2.1.0")
 // 经典加载底
+    implementation("com.jakewharton.timber:timber:5.0.1")
 }

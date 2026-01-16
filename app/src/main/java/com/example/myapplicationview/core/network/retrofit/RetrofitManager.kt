@@ -1,7 +1,7 @@
 package com.example.myapplicationview.core.network.retrofit
 
+import com.example.myapplicationview.core.network.interceptor.LoggingInterceptor
 import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -14,9 +14,7 @@ object RetrofitManager {
     private val okHttpClient: OkHttpClient by lazy {
         OkHttpClient.Builder()
             .connectTimeout(20, java.util.concurrent.TimeUnit.SECONDS)
-            .addInterceptor(HttpLoggingInterceptor().apply {
-                level = HttpLoggingInterceptor.Level.BODY
-            })
+            .addInterceptor(LoggingInterceptor())
             .build()
     }
 
