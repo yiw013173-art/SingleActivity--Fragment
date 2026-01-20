@@ -24,7 +24,9 @@ class MeViewModel: ViewModel() {
 
     private var page: Int = 1
 
-    private var limit: Int = 10
+    var statSize: Int = 0
+
+     val limit: Int = 10
 
     private var isLoading = false // 防抖标志位
 
@@ -37,6 +39,7 @@ class MeViewModel: ViewModel() {
                 val getList = withContext(Dispatchers.IO){
                     MeRepository.getMeDataCache(targetPage,limit)
                 }
+                statSize = getList.size
                 if (isRefresh){
                     allList.clear()
                     page = 1
@@ -46,7 +49,12 @@ class MeViewModel: ViewModel() {
                 allList.addAll(getList)
                 val finishData = getList.size < limit
                 _finishLoadFlow.emit(finishData) // 如果获取的数据少于limit，说明没有更多数据了，通知ui更新状态
+                val flowData = stateFlow.value
                 _stateFlow.value = allList.toList()
+                if (flowData.equals(stateFlow.value)){
+                    // 相等说明数据没有变化，手动触发一次更新
+                    _finishLoadFlow.value = !_finishLoadFlow.value
+                }
             }catch (e:Exception){
                 _stateFlow.value = allList.toList()
                 e.printStackTrace()

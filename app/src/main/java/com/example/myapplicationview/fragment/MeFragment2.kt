@@ -6,9 +6,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.myapplicationview.R
+import com.example.myapplicationview.adapter.MeAdapter
 import com.example.myapplicationview.databinding.FragmentMe2Binding
 import com.example.myapplicationview.viewmodel.MeViewModel
+import com.scwang.smart.refresh.layout.constant.RefreshState
+import kotlinx.coroutines.launch
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -31,6 +38,10 @@ class MeFragment2 : Fragment() {
 
     private val viewModel: MeViewModel by viewModels()
 
+    private val meAdapter by lazy {
+        MeAdapter()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -49,7 +60,63 @@ class MeFragment2 : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setupAdapter()
+        setupSmartLayout()
+        setupObservers()
+        if (meAdapter.itemCount == 0){
+            viewBinding.smartMe2.autoRefresh()
+//            viewModel.loadData(true)
+        }
+    }
 
+    fun setupSmartLayout(){
+        viewBinding.smartMe2.setOnRefreshListener {
+            viewModel.loadData(true)
+        }
+        viewBinding.smartMe2.setOnLoadMoreListener {
+            viewModel.loadData(false)
+        }
+    }
+
+    fun setupAdapter(){
+        viewBinding.recyclerMe.apply {
+            adapter = meAdapter
+            layoutManager = LinearLayoutManager(requireContext())
+        }
+    }
+
+    fun setupObservers(){
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED){
+                launch {
+                    viewModel.stateFlow.collect {
+                        meAdapter.submitList(it)
+                        handleState(viewModel.statSize)
+                    }
+                }
+                launch {
+                    viewModel.finishLoadFlow.collect {
+                        // 用于处理数据没有变化时，智能刷新状态无法结束的问题
+                        handleState(20)
+                    }
+                }
+            }
+        }
+    }
+
+    fun handleState(size: Int){
+        when(viewBinding.smartMe2.state){
+            RefreshState.Refreshing->{
+                viewBinding.smartMe2.finishRefresh()
+            }
+            RefreshState.Loading->{
+                viewBinding.smartMe2.finishLoadMore()
+            }
+            else -> {}
+        }
+        if (size<viewModel.limit){
+            viewBinding.smartMe2.setNoMoreData(true)
+        }
     }
 
     override fun onDestroyView() {
